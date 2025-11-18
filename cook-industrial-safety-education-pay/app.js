@@ -1,6 +1,6 @@
 // 251118화 수정: 조리종사원 산안전보건교육 + 통상임금 계산기
 // - fetch 실패 시에도 직종 목록이 뜨도록 내장 스냅샷 사용
-// - 온라인교육: 통상임금 × 시간 → 1.5배 가산 후 최종 원단위 절삭
+// - 온라인교육: 통상임금 × 시간 → 1.5배 가산 후 최종 10원 절사
 
 // 로컬용 기본 스냅샷 (영양사 / 조리사 / 조리실무사 + 정액급식비·상여·명절휴가비)
 const FALLBACK_DATA = {
@@ -14,7 +14,6 @@ const FALLBACK_DATA = {
       정기상여금: 83330,
       명절휴가비: 154160,
       "교무행정사(직무수당)": 30000
-      "위험수당": 50000
     },
     jobs: [
       {
@@ -296,7 +295,7 @@ document.addEventListener('DOMContentLoaded', async ()=>{
     }
   }
 
-  // 학기 중 온라인 교육: 통상임금 × 시간 먼저 곱하고, 가산배율 적용 후 최종 10원 절사
+  // 학기 중 온라인 교육: 통상임금 × 시간 먼저 곱하고, 가산배율 적용 후 최종 원단위 절삭
   function recalcEdu(){
     const useManual = eduUseManual && eduUseManual.checked;
 
@@ -393,8 +392,7 @@ document.addEventListener('DOMContentLoaded', async ()=>{
       vacResult.style.display = 'block';
       vacResult.innerHTML = `
         <p>
-          기본급, 정액급식비, 월 일수, 교육시간, 최저시급을 모두 입력해 주세요.<br/>
-          (직종을 먼저 선택하고 "자동 불러오기"를 사용하면 기본급·정액급식비가 채워집니다.)
+          직종 먼저 선택하쇼
         </p>
       `;
       return;
@@ -402,7 +400,7 @@ document.addEventListener('DOMContentLoaded', async ()=>{
 
     const monthlyTotal = basic + meal;
     const dailyRaw = monthlyTotal / days;
-    const dailyPay = floor10(dailyRaw); // 10원 단위 절사
+    const dailyPay = floor10(dailyRaw); 
 
     const hourlyRaw = dailyPay / 8;
     const hourlyPay = floor10(hourlyRaw);
@@ -425,10 +423,10 @@ document.addEventListener('DOMContentLoaded', async ()=>{
       <table>
         <tr><th>항목</th><th>금액</th></tr>
         <tr><td>월임금 (기본급 + 정액급식비)</td><td>${money(monthlyTotal)}</td></tr>
-        <tr><td>일급 (월임금 ÷ 월일수, 원 단위 절삭)</td><td>${money(dailyPay)}</td></tr>
-        <tr><td>통상임금 (일급 ÷ 8시간, 원 단위 절삭)</td><td>${money(hourlyPay)}</td></tr>
-        <tr><td>교육시간 임금 (시간급 × ${eduH}시간, 원 단위 절삭)</td><td>${money(eduPay)}</td></tr>
-        <tr><td>최저임금 기준 (최저시급 × ${eduH}시간, 원 단위 절삭)</td><td>${money(minPay)}</td></tr>
+        <tr><td>일급 (월임금 ÷ 월일수, 원단위 절삭)</td><td>${money(dailyPay)}</td></tr>
+        <tr><td>시간급 (일급 ÷ 8시간, 원단위 절삭)</td><td>${money(hourlyPay)}</td></tr>
+        <tr><td>교육시간 임금 (시간급 × ${eduH}시간, 원단위 절삭)</td><td>${money(eduPay)}</td></tr>
+        <tr><td>최저임금 기준 (최저시급 × ${eduH}시간, 원단위 절삭)</td><td>${money(minPay)}</td></tr>
         <tr><td>최저임금 보전 추가액</td><td>${money(extra)}</td></tr>
         <tr><td class="result-strong">최종 지급액</td><td class="result-strong">${money(finalPay)}</td></tr>
       </table>
