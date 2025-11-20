@@ -43,7 +43,7 @@
       </div>
 
       <p class="hint" style="margin-top:8px;">
-        ·월간 일수는 달력일수로 계산. 주말 및 공휴일 포함.<br/
+        ·월간 일수는 달력일수로 계산. 주말 및 공휴일 포함.<br/>
         ·예시: 2025.12.31.일자에 방학식이면 2026.1.1.일자부터 방학 일수로 포함.
       </p>
       <p class="hint">
@@ -135,11 +135,67 @@
       </div>
     </section>
 
-    <!-- 3. 월별 지급 수당 -->
+    <!-- 3. 경력 연수 및 가족 사항 -->
     <section class="card">
-      <h2>3. 월별 지급 수당</h2>
+      <h2>3. 경력 연수 및 가족 사항</h2>
+
+      <div class="grid two">
+        <div class="form-row">
+          <label>
+            환산 총 경력연수
+            <div class="grid two" style="gap:8px; margin-top:4px;">
+              <div>
+                <input type="number" id="careerYears" min="0" step="1" placeholder="0" />
+                <span>년</span>
+              </div>
+              <div>
+                <input type="number" id="careerMonths" min="0" step="1" placeholder="0" />
+                <span>개월</span>
+              </div>
+            </div>
+            <div style="margin-top:4px;">
+              <input type="number" id="careerDays" min="0" step="1" placeholder="0" style="max-width:100px;" />
+              <span>일</span>
+            </div>
+          </label>
+          <p class="hint">
+            ·예: 9년 10개월 14일이면 그대로 입력. (교원연구비·정근수당 등 근무연수 기준 판단용)
+          </p>
+        </div>
+
+        <div>
+          <div class="form-row">
+            <span class="label">배우자 유무 (가족수당)</span>
+            <div style="margin-top:4px;">
+              <label style="margin-right:8px;">
+                <input type="radio" name="spouseFlag" value="N" checked />
+                없음
+              </label>
+              <label>
+                <input type="radio" name="spouseFlag" value="Y" />
+                있음
+              </label>
+            </div>
+          </div>
+          <div class="form-row">
+            <label>
+              자녀 수 (가족수당 대상 자녀)
+              <input type="number" id="childCount" min="0" step="1" value="0" />
+            </label>
+            <p class="hint">
+              ·2025년 기준: 자녀 1명 50,000원 / 2명 80,000원 / 3명 이상 120,000원 (정상근무 기준 자녀수당 총액)
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. 월별 지급 수당 -->
+    <section class="card">
+      <h2>4. 월별 지급 수당</h2>
       <p class="hint">
-        ·매월 정기적으로 지급되는 수당
+        ·매월 정기적으로 지급되는 수당<br/>
+        ·교직수당·정액급식비·교원연구비·가족수당은 입력값과 근무연수·가족사항에 따라 자동 채워짐(필요 시 수정 가능).
       </p>
 
       <div class="table-wrap" style="margin-top:10px;">
@@ -184,9 +240,9 @@
       <button type="button" class="btn" id="addAllowBtn">행 추가</button>
     </section>
 
-    <!-- 4. 연 단위 수당 -->
+    <!-- 5. 연 단위 수당 -->
     <section class="card">
-      <h2>4. 연 단위 지급 수당 </h2>
+      <h2>5. 연 단위 지급 수당 </h2>
       <p class="hint">
         ·정근수당·명절휴가비·정기상여금 등<br />
         ·계약기간에 해당하는 총액 입력하면 월별로 배분함.
@@ -219,9 +275,9 @@
       <button type="button" class="btn" id="addAnnualBtn">행 추가</button>
     </section>
 
-    <!-- 5. 방학·미운영 기간 설정 -->
+    <!-- 6. 방학·미운영 기간 설정 -->
     <section class="card">
-      <h2>5. 방학기간 및 방과후과정 미운영 기간 설정</h2>
+      <h2>6. 방학기간 및 방과후과정 미운영 기간 설정</h2>
       <p class="hint">
         ·여러 구간 선택 가능함.
       </p>
@@ -273,9 +329,9 @@
       <button type="button" class="btn" id="addNoAfBtn">행 추가</button>
     </section>
 
-    <!-- 6. 월별 근무(달력) 일수 자동 계산 -->
+    <!-- 7. 월별 근무(달력) 일수 자동 계산 -->
     <section class="card">
-      <h2>6. 월별 학기중·방학·미운영 일수 자동 계산</h2>
+      <h2>7. 월별 학기중·방학·미운영 일수 자동 계산</h2>
       <p class="hint">
         ·계약기간 동안 각 월별 인건비 지급 일수 계산함. 수동 입력 가능.
       </p>
@@ -285,9 +341,9 @@
       <div id="monthTableWrap" style="margin-top:10px;"></div>
     </section>
 
-    <!-- 7. 월별 인건비 계산 -->
+    <!-- 8. 월별 인건비 계산 -->
     <section class="card">
-      <h2>7. 월별 인건비 및 기관부담금 계산</h2>
+      <h2>8. 월별 인건비 및 기관부담금 계산</h2>
       <p class="hint">
         ·월별 인건비 일할계산 포함해서 산출함. 
       </p>
@@ -295,6 +351,27 @@
       <p id="calcError" class="error"></p>
 
       <div id="resultWrap" style="margin-top:10px;"></div>
+    </section>
+
+    <!-- 9. 직종별 구비서류 안내 -->
+    <section class="card">
+      <h2>9. 직종별 구비서류 안내</h2>
+      <p class="hint">
+        ·2025 강원특별자치도교육청 계약제교원 운영 지침 기준 요약.<br/>
+        ·실제 공고 시 제시되는 서류 목록과 차이가 있으면 공고문을 우선.
+      </p>
+
+      <div class="form-row">
+        <label>
+          채용 유형 선택
+          <select id="docTypeSelect">
+            <option value="time-part">시간제근무 기간제교원(일반)</option>
+            <option value="retired">퇴직교원(1년 이내) 재채용</option>
+          </select>
+        </label>
+      </div>
+
+      <div id="docGuide" class="doc-guide" style="margin-top:8px;"></div>
     </section>
 
     <a class="btn" href="/index.html">메인으로 돌아가기</a>
@@ -308,4 +385,3 @@
   <script src="script.js"></script>
 </body>
 </html>
-
