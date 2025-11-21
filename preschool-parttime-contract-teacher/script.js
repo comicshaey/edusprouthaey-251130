@@ -344,7 +344,7 @@ function calcMonthly(){
           <th>월 임금</th>
           <th>연 단위 분배</th>
           <th>월 총 지급</th>
-          <th>기관부담(연·건·장·고·산재)</th>
+          <th>사회보험료 기관부담금</th>
         </tr>
       </thead>
       <tbody>${rowsHtml}</tbody>
@@ -360,7 +360,7 @@ function calcMonthly(){
     </table>
   </div>
   <p class="hint">
-    ·기관부담금은 국민연금·건강보험·장기요양·고용보험·산재보험(0.966%) 기준 대략값으로, 실제 고지액과 다를 수 있습니다.
+    ·기관부담금 산재보험(0.966%)임. 개발자 근무 학교 기준.
   </p>`;
 
   // ----- 수당별 기준 월액 & 계약기간 총 지급액 요약 -----
@@ -393,8 +393,8 @@ function calcMonthly(){
       </table>
     </div>
     <p class="hint">
-      ·수당별 계약기간 총 지급액은 학기·방학·방과후 미운영 일수를 반영해 일할계산한 금액이며, 10원 단위로 절사했습니다.<br/>
-      ·정근수당 가산금은 입력하신 월액을 기준으로 위와 같이 합산됩니다.
+      ·수당별 계약기간 총 지급액은 학기·방학·방과후 미운영 일수를 반영해 일할계산한 금액. 원단위 절삭<br/>
+      ·정근수당 가산금은 입력한 보수월액 기준으로 함
     </p>`;
   }
 
@@ -411,7 +411,7 @@ function calcMonthly(){
         <h3 style="margin-top:0;font-size:15px;">퇴직금 개략 산정 (계속근로 1년 이상)</h3>
         <p class="hint">
           ·계약기간 달력일수: ${days}일 기준<br/>
-          ·계약기간 전체 임금을 달력일수로 나눈 1일 평균임금 × 30일을 10원 단위로 버림한 값입니다.
+          ·계약기간 전체 임금을 달력일수로 나눈 1일 평균임금 *30일. 원단위 절삭
         </p>
         <p><b>예상 퇴직금(개략): ${formatWon(retire)}</b></p>
       </div>`;
@@ -419,7 +419,7 @@ function calcMonthly(){
       wrap.innerHTML+=`
       <div class="card">
         <h3 style="margin-top:0;font-size:15px;">퇴직금 개략 산정</h3>
-        <p>계약기간이 1년 미만(달력일수 ${days}일)으로 퇴직금 지급 대상이 아닐 수 있습니다.</p>
+        <p>계약기간이 1년 미만(달력일수 ${days}일)으로 퇴직금 지급 대상이 아닐 수 있음</p>
       </div>`;
     }
   }
@@ -565,3 +565,4 @@ document.addEventListener("DOMContentLoaded",()=>{
   $("docTypeSelect")?.addEventListener("change",renderDocGuide);
   renderDocGuide();
 });
+
