@@ -1,5 +1,5 @@
-// 251121 유치원 시간제근무 기간제교원 인건비 계산기 스크립트
-// 졸려
+// 251121 졸리다
+
 
 // ===== 공통 헬퍼 =====
 function $(id) { return document.getElementById(id); }
@@ -231,7 +231,7 @@ function calcMonthly() {
   const R_PEN = 0.045, R_HEAL = 0.03545;
   const R_LTC = 0.1267 * R_HEAL;
   const R_EMP = 0.0175;
-  const R_IND = 0.00966;
+  const R_IND = 0.00966; 
 
   let totalW = 0, totalA = 0, totalINS = 0, totalDays = 0;
 
