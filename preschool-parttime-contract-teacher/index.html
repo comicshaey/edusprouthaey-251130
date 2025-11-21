@@ -184,7 +184,7 @@
               <div style="margin-bottom:4px;">
                 첫째 자녀:
                 <label style="margin-left:6px; margin-right:4px;">
-                  <input type="radio" name="firstChildFlag" value="N" checked /> 수당 없음
+                  <input type="radio" name="firstChildFlag" value="N" checked /> 부양가족 아님
                 </label>
                 <label>
                   <input type="radio" name="firstChildFlag" value="Y" /> 수당 지급
@@ -193,7 +193,7 @@
               <div style="margin-bottom:4px;">
                 둘째 자녀:
                 <label style="margin-left:6px; margin-right:4px;">
-                  <input type="radio" name="secondChildFlag" value="N" checked /> 수당 없음
+                  <input type="radio" name="secondChildFlag" value="N" checked /> 부양가족 아님
                 </label>
                 <label>
                   <input type="radio" name="secondChildFlag" value="Y" /> 수당 지급
@@ -202,7 +202,7 @@
               <div>
                 셋째 이상 자녀:
                 <label style="margin-left:6px; margin-right:4px;">
-                  <input type="radio" name="thirdChildFlag" value="N" checked /> 수당 없음
+                  <input type="radio" name="thirdChildFlag" value="N" checked /> 부양가족 아님
                 </label>
                 <label style="margin-right:6px;">
                   <input type="radio" name="thirdChildFlag" value="Y" /> 수당 지급
@@ -214,8 +214,7 @@
               </div>
             </div>
             <p class="hint" style="margin-top:4px;">
-              ·예시) 첫째는 만 19세 초과, 둘째만 가족수당 대상이면: 첫째=수당 없음, 둘째=수당 지급, 셋째 이상=0명, 수당 없음 선택.<br/>
-              ·자녀 수당 총액은 “수당 받는 자녀 수”에 따라 1명 50,000원 / 2명 80,000원 / 3명 이상 120,000원으로 계산.
+              ·첫째 자녀 50,000원 / 둘째 자녀 80,000원 / 셋째 이상 120,000원. 공무원 보수 편람 참고
             </p>
           </div>
         </div>
@@ -223,8 +222,8 @@
 
       <button type="button" class="btn" id="stepBaseBtn">1단계: 호봉·경력·가족 수당 반영</button>
       <p class="hint" style="margin-top:4px;">
-        ·호봉·경력·배우자·자녀 정보 입력 후 1단계를 누르면 기본급(4/8시간)과 교직수당·정액급식비·교원연구비·가족수당이 자동 반영됩니다.<br/>
-        ·<b>정근수당 가산금</b>은 기관별·사례별로 달라질 수 있어 자동 계산하지 않고 <b>사용자가 직접 입력</b>하도록 했습니다.
+        ·호봉·경력·배우자·자녀 정보 입력 후 1단계를 누르면 기본급(4/8시간)과 교직수당·정액급식비·교원연구비·가족수당이 자동 반영됨 <br/>
+        ·정근수당 가산금은 수기입력
       </p>
     </section>
 
@@ -442,4 +441,5 @@
   <script src="script.js?v=25112102"></script>
 </body>
 </html>
+
 
