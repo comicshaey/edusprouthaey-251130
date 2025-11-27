@@ -24,7 +24,7 @@ const addDays = (d, n) => {
 const isSameOrBefore = (a, b) => a.getTime() <= b.getTime();
 const isSameOrAfter = (a, b) => a.getTime() >= b.getTime();
 
-// 원 단위 절삭
+// 십원 단위 절삭
 const floor10 = (n) => Math.floor(n / 10) * 10;
 
 // JS Date → 한국식 요일 번호(월=1, …, 일=7)
