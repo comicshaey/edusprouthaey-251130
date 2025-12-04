@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>연차·미사용수당 슈퍼 울트라 계산기 (Pyodide + 나이스 업로드)</title>
+  <title> 연차 부여일수 및 연차 미사용수당 계산기</title>
 
   <!-- 공통 스타일 -->
   <link rel="stylesheet" href="/static/style.css" />
@@ -79,10 +79,11 @@
 <body>
   <header class="site-header">
     <div class="shell">
-      <h1>연차·미사용수당 슈퍼 울트라 계산기</h1>
+      <h1>복무상황 집계 머신 </h1>
       <p class="sub">
-        Pyodide 기반 · 로컬 완전 정적 페이지 · Excel/CSV 나이스 근무상황 자동 분석 지원<br />
-        모든 금액은 <b>1원 단위 절삭 → 10원 단위 버림</b> 기준 표시.
+        ·아… 졸리다
+        ·서버 없어서 pyodide 사용함. 서버 갖고 싶다. <br />
+        ·나이스 근무상황 원자료 CSV 파일 업로드하면 근무 종류별로 사용 시간 계산해드림. <br />        
       </p>
     </div>
   </header>
@@ -90,36 +91,36 @@
   <main>
     <!-- 0. 나이스 업로드 분석 -->
     <section class="section">
-      <h2>0. 나이스 근무상황 업로드 분석</h2>
+      <h2>*나이스 원자료 업로드 (CSV 파일)</h2>
 
       <div class="card">
         <div class="grid two">
           <div class="field">
-            <label for="niceFile">근무상황 파일 (.xlsx / .xls / .csv)</label>
-            <input id="niceFile" type="file" accept=".xlsx,.xls,.csv" />
+            <label for="niceFile">근무상황 파일 (.csv)</label>
+            <input id="niceFile" type="file" accept=".csv" />
           </div>
           <div class="field">
-            <label for="niceHoursPerDay">1일 소정근로시간</label>
+            <label for="niceHoursPerDay">1일 소정 근로시간</label>
             <input id="niceHoursPerDay" type="number" value="8" step="0.5" class="numeric" />
           </div>
         </div>
 
         <p class="muted local-small">
-          헤더에서 <b>“종별”</b>, <b>“일수/기간”</b>과 비슷한 이름을 자동 탐색해서 복무별 사용시간을 집계합니다.<br>
-          (디버그용으로 아래에 인식한 헤더·레코드 수를 그대로 보여줍니다.)
+          ·복무 상황 별로 집계해서 시간 단위로 환산해드림.
+          ·첫행이 각 항목 이름이어야 함. 셀병합은 해제하고 올려주쇼.
         </p>
 
         <div class="row" style="margin-top:8px;">
-          <button id="btnAnalyze" class="btn primary" disabled>업로드·복무 집계</button>
-          <button id="btnResetNice" class="btn ghost" type="button">초기화</button>
+          <button id="btnAnalyze" class="btn primary" disabled>복무상황 집계하기</button>
+          <button id="btnResetNice" class="btn ghost" type="button">파일 삭제 (초기화)</button>
         </div>
 
         <div id="niceStatus" class="status" style="margin-top:6px;">
-          Pyodide 로딩이 완료되면 업로드가 가능합니다.
+          ·Pyodide 로딩 완료 후에 업로드 가능함. 기다리쇼.
         </div>
 
         <div id="niceDebugBox" class="muted">
-          (헤더 인식·레코드 내용은 여기 표시됩니다.)
+          ·내용 여기 표시됨. 
         </div>
       </div>
 
@@ -130,8 +131,8 @@
               <th>종별</th>
               <th style="text-align:right;">건수</th>
               <th style="text-align:right;">합계 (일·시간·분)</th>
-              <th style="text-align:right;">합계 시간(h, 10진법)</th>
-              <th style="text-align:right;">환산(일 + 시간)</th>
+              <th style="text-align:right;">10진법으로 시간 변환</th>
+              <th style="text-align:right;">n일 m시간 형식으로 환산</th>
             </tr>
           </thead>
           <tbody id="niceSummaryBody"></tbody>
@@ -141,35 +142,35 @@
 
     <!-- 1. Pyodide 상태 -->
     <section class="section">
-      <h2>1. 파이썬 엔진 상태</h2>
-      <p id="pyStatus" class="status">Pyodide 로딩 중...</p>
+      <h3>*파이썬 엔진 로딩 상태</h3>
+      <p id="pyStatus" class="status">Pyodide 로딩 중…</p>
     </section>
 
     <!-- 2. 연차·수당 계산 입력 -->
     <section class="section">
-      <h2>2. 연차·수당 계산 입력</h2>
+      <h2>*연차 일수 및 미사용 수당 산정 관련</h2>
 
       <div class="card">
-        <h3>2-1. 규정 및 근속 정보</h3>
+        <h3>1. 규정 및 근속 정보</h3>
         <div class="grid three">
           <div class="field">
-            <label for="ruleId">규정 세트</label>
+            <label for="ruleId">규정</label>
             <select id="ruleId">
-              <option value="law_basic">법정 기본형</option>
-              <option value="gw_school_cba">학교근무자 CBA</option>
-              <option value="gw_institute_cba">기관근무자 CBA</option>
-              <option value="gw_wage_guideline">통상임금 지침형</option>
-              <option value="custom">커스텀</option>
+              <option value="law_basic">원래 근로기준법상 적용</option>
+              <option value="gw_school_cba">학교 근무자 (3.1.일자 기준)</option>
+              <option value="gw_institute_cba">기관 근무자 (1.1.일자 기준)</option>
+              <option value="gw_wage_guideline">재밌긴 한데 귀찮다…</option>
+              <option value="custom">수동 입력</option>
             </select>
           </div>
 
           <div class="field">
-            <label for="svcYears">근속연수(년)</label>
+            <label for="svcYears">근속연수</label>
             <input id="svcYears" type="number" step="0.1" value="1.0" class="numeric" />
           </div>
 
           <div class="field">
-            <label for="svcFullYears">완전년수</label>
+            <label for="svcFullYears">근속연수 (상세)</label>
             <input id="svcFullYears" type="number" step="1" value="1" class="numeric" />
           </div>
         </div>
@@ -180,11 +181,11 @@
             <input id="attendanceRate" type="number" value="98" step="0.1" class="numeric" />
           </div>
           <div class="field">
-            <label for="fullMonths">월 개근 개월수</label>
+            <label for="fullMonths">개근 월 수</label>
             <input id="fullMonths" type="number" value="12" step="1" class="numeric" />
           </div>
           <div class="field">
-            <label>입사일 / 기준일(텍스트)</label>
+            <label>최초 임용일자</label>
             <input id="hireDate" type="text" placeholder="예: 2024-03-01" />
             <input id="baseDate" type="text" placeholder="예: 2025-03-01" style="margin-top:4px;" />
           </div>
@@ -192,7 +193,7 @@
       </div>
 
       <div class="card">
-        <h3>2-2. 임금 정보</h3>
+        <h3>2. 보수 관련 정보</h3>
 
         <div class="grid three">
           <div class="field">
@@ -210,55 +211,55 @@
           </div>
 
           <div class="field">
-            <label for="hoursPerDay">1일 근로시간</label>
+            <label for="hoursPerDay">1일 소정 근로시간</label>
             <input id="hoursPerDay" type="number" value="8" step="0.5" class="numeric" />
           </div>
         </div>
 
         <div class="grid two">
           <div class="field">
-            <label for="monthlyDays">월 소정근로일수</label>
+            <label for="monthlyDays">월 소정 근로일수</label>
             <input id="monthlyDays" type="number" step="0.1" value="20.5" class="numeric" />
           </div>
         </div>
       </div>
 
       <div class="card">
-        <h3>2-3. 연차 부여/사용</h3>
+        <h3>3. 연차 부여 및 사용</h3>
 
         <div class="grid two">
           <div class="field">
-            <label for="grantedDays">부여 연차일수</label>
+            <label for="grantedDays">연차 부여 일수</label>
             <input id="grantedDays" type="number" step="0.5" value="26" class="numeric" />
           </div>
           <div class="field">
-            <label for="usedDays">사용 연차일수</label>
+            <label for="usedDays">연차 사용 일수</label>
             <input id="usedDays" type="number" step="0.5" value="10.5" class="numeric" />
           </div>
         </div>
       </div>
 
-      <button id="btnRun" class="btn primary" disabled>연차·수당 계산</button>
+      <button id="btnRun" class="btn primary" disabled>연차 미사용 수당 계산</button>
     </section>
 
     <!-- 3. 결과 -->
     <section class="section">
-      <h2>3. 계산 결과</h2>
+      <h2>*계산 결과</h2>
       <div class="card">
         <div class="result-grid">
 
           <div class="result-item">
-            <div class="result-label">규정 세트</div>
+            <div class="result-label">졸리다… </div>
             <div class="result-value" id="resRule">-</div>
           </div>
 
           <div class="result-item">
-            <div class="result-label">추천 연차일수</div>
+            <div class="result-label">연차 일수</div>
             <div class="result-value" id="resSuggested">-</div>
           </div>
 
           <div class="result-item">
-            <div class="result-label">추천 설명</div>
+            <div class="result-label">설명</div>
             <div class="result-value" id="resDesc" style="text-align:left;">-</div>
           </div>
 
@@ -270,17 +271,17 @@
           </div>
 
           <div class="result-item">
-            <div class="result-label">1일 통상임금 (10원단위)</div>
+            <div class="result-label">통상임금*1일 소정 근로시간 (원단위 절삭)</div>
             <div class="result-value" id="resDaily">-</div>
           </div>
 
           <div class="result-item">
-            <div class="result-label">미사용 연차수당 (계산값)</div>
+            <div class="result-label">연차 미사용 수당</div>
             <div class="result-value" id="resPayout">-</div>
           </div>
 
           <div class="result-item">
-            <div class="result-label">최종(절사 적용)</div>
+            <div class="result-label">최종 값 (원단위 절삭)</div>
             <div class="result-value highlight" id="resFinal">-</div>
           </div>
         </div>
@@ -289,9 +290,9 @@
 
     <!-- 4. 파이썬 오류 박스 -->
     <section class="section" id="errorCard">
-      <h2>4. 파이썬 오류 메시지</h2>
+      <h2>※ 파이썬 오류 메시지</h2>
       <div class="card">
-        <pre id="pyErrorText">(현재 오류 없음)</pre>
+        <pre id="pyErrorText">(오류내역 없음)</pre>
       </div>
     </section>
   </main>
@@ -302,7 +303,7 @@
 
     function clearPyError() {
       document.getElementById("errorCard").style.display = "none";
-      document.getElementById("pyErrorText").textContent = "(현재 오류 없음)";
+      document.getElementById("pyErrorText").textContent = "(오류내역 없음)";
     }
 
     function showPyError(err, context) {
@@ -325,7 +326,7 @@
       const pyStatus = document.getElementById("pyStatus");
       const niceStatus = document.getElementById("niceStatus");
       try {
-        pyStatus.textContent = "Pyodide 로딩 중...";
+        pyStatus.textContent = "Pyodide 로딩 중…";
         pyodide = await loadPyodide();
 
         const engineCode = await (await fetch("annual_engine.py")).text();
@@ -334,12 +335,12 @@
 
         pyReady = true;
         pyStatus.textContent = "Pyodide + annual_engine 로딩 완료.";
-        niceStatus.textContent = "파일을 선택한 뒤 [업로드·복무 집계] 버튼을 눌러주세요.";
+        niceStatus.textContent = "파일 업로드하고 나서 [복무상황 집계하기] 버튼 누르시오.";
         document.getElementById("btnAnalyze").disabled = false;
         document.getElementById("btnRun").disabled = false;
       } catch (err) {
         pyStatus.textContent = "Pyodide 로딩 실패 (오류 박스 확인)";
-        niceStatus.textContent = "Pyodide가 준비되지 않아 업로드 집계를 할 수 없습니다.";
+        niceStatus.textContent = "Pyodide 로딩 실패로 복무상황황 집계 불가.";
         niceStatus.classList.add("danger");
         showPyError(err, "Pyodide 초기화 중");
       }
@@ -370,22 +371,22 @@
     document.getElementById("btnAnalyze").addEventListener("click", () => {
       clearPyError();
       if (!pyReady) {
-        alert("Pyodide 로딩을 기다려주세요.");
+        alert("Pyodide 로딩 대기 중");
         return;
       }
 
       const input = document.getElementById("niceFile");
       const file = input.files && input.files[0];
       if (!file) {
-        alert("근무상황 파일을 선택해주세요.");
+        alert("근무상황 파일 업로드 필요.");
         return;
       }
 
       const ext = (file.name.split(".").pop() || "").toLowerCase();
       const hpd = parseFloat(document.getElementById("niceHoursPerDay").value || "8") || 8;
       const status = document.getElementById("niceStatus");
-      status.textContent = "파일 읽는 중...";
-      setNiceDebug("(파일 읽는 중...)");
+      status.textContent = "파일 읽는 중…";
+      setNiceDebug("(파일 읽는 중…)");
 
       const reader = new FileReader();
       reader.onload = async (e) => {
@@ -421,7 +422,7 @@
             status.classList.add("danger");
             debugText += "\n※ 필요한 열을 찾지 못해 집계를 중단했습니다.";
             setNiceDebug(debugText);
-            alert("헤더명을 확인해주세요. (종별 / 일수/기간)");
+            alert("1행의 항목명 확인 필요");
             return;
           }
 
