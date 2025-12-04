@@ -10,12 +10,10 @@
 
   <!-- Pyodide -->
   <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
-  <!-- SheetJS: 엑셀 파싱 -->
+  <!-- SheetJS: 엑셀/CSV 파싱 -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
   <style>
-    /* 이 페이지 전용 컴포넌트 스타일 */
-
     .field {
       display: flex;
       flex-direction: column;
@@ -117,7 +115,7 @@
     <div class="shell">
       <h1>연차·미사용수당 슈퍼 울트라 계산기 (Pyodide + 나이스 엑셀)</h1>
       <p class="sub">
-        나이스 <b>근무상황목록 엑셀</b>을 업로드해서 복무별 사용시간을 집계하고,<br />
+        나이스 <b>근무상황목록 엑셀/CSV</b>을 업로드해서 복무별 사용시간을 집계하고,<br />
         같은 페이지에서 <b>연차 부여·미사용수당</b>까지 한 번에 계산하는 정적 페이지 버전입니다.<br />
         모든 금액은 <b>1원 단위 절삭 → 10원 단위 버림</b> 기준으로 표시합니다.
       </p>
@@ -128,17 +126,18 @@
     <!-- 0. 나이스 엑셀 업로드 분석 -->
     <section class="section">
       <div class="section-header-row">
-        <h2>0. 나이스 근무상황목록(.xlsx) 업로드 분석</h2>
+        <h2>0. 나이스 근무상황목록 업로드 분석 (xlsx / csv)</h2>
         <span class="muted local-small">
-          파일 업로드 → SheetJS로 엑셀 파싱 → Pyodide 파이썬 엔진으로 복무별 집계
+          파일 업로드 → SheetJS로 엑셀/CSV 파싱 → Pyodide 파이썬 엔진으로 복무별 집계
         </span>
       </div>
 
       <div class="card">
         <div class="grid two">
           <div class="field">
-            <label for="niceFilePy">근무상황목록 엑셀 파일 (.xlsx)</label>
-            <input type="file" id="niceFilePy" accept=".xlsx,.xls" />
+            <label for="niceFilePy">근무상황목록 파일 (.xlsx / .xls / .csv)</label>
+            <!-- ★ csv 추가 -->
+            <input type="file" id="niceFilePy" accept=".xlsx,.xls,.csv" />
           </div>
           <div class="field">
             <label for="hoursPerDayPy">1일 소정근로시간</label>
@@ -147,11 +146,11 @@
         </div>
         <p class="muted local-small">
           · 헤더에서 <b>“종별”</b> / <b>“일수/기간”</b>과 비슷한 이름을 자동 탐색합니다.
-          필요하면 나중에 열 이름 후보를 코드에서 조정하면 됩니다.
+          (CSV로 내보낸 파일도 동일 헤더면 그대로 인식합니다.)
         </p>
         <div class="row" style="margin-top: 10px;">
           <button type="button" class="btn primary" id="btnAnalyzeNice" disabled>
-            엑셀 업로드·복무별 집계
+            업로드·복무별 집계
           </button>
           <button type="button" class="btn ghost" id="btnResetNice">
             업로드/결과 초기화
@@ -413,13 +412,13 @@
 
         pyReady = true;
         statusEl.textContent = "Pyodide + annual_engine.py 로딩 완료. 계산 가능 상태입니다.";
-        niceStatus.textContent = "엑셀 파일을 선택한 뒤 [엑셀 업로드·복무별 집계] 버튼을 눌러주세요.";
+        niceStatus.textContent = "파일을 선택한 뒤 [업로드·복무별 집계] 버튼을 눌러주세요.";
         document.getElementById("btnRun").disabled = false;
         document.getElementById("btnAnalyzeNice").disabled = false;
       } catch (e) {
         statusEl.textContent = "Pyodide 로딩 실패. 아래 오류 메시지를 확인하세요.";
         statusEl.classList.add("danger");
-        niceStatus.textContent = "Pyodide가 준비되지 않아 엑셀 집계를 할 수 없습니다.";
+        niceStatus.textContent = "Pyodide가 준비되지 않아 엑셀/CSV 집계를 할 수 없습니다.";
         niceStatus.classList.add("danger");
         showPyError(e, "Pyodide 초기화/annual_engine.py 로딩 중");
       }
@@ -428,7 +427,7 @@
     initPyodide();
 
     // ---------------------------
-    // 0. 나이스 엑셀 → summarize_nice_records
+    // 0. 나이스 엑셀/CSV → summarize_nice_records
     // ---------------------------
     function guessLeaveCol(headers) {
       const cands = ["종별", "복무", "근무상태", "근태", "근무구분"];
@@ -459,19 +458,29 @@
       const input = document.getElementById("niceFilePy");
       const file = input.files && input.files[0];
       if (!file) {
-        alert("근무상황목록 엑셀 파일을 선택해주세요.");
+        alert("근무상황목록 파일을 선택해주세요.");
         return;
       }
 
       const hpd = parseFloat(document.getElementById("hoursPerDayPy").value || "8") || 8;
       const status = document.getElementById("niceStatus");
-      status.textContent = "엑셀 파싱 중...";
+      status.textContent = "파일 파싱 중...";
 
       const reader = new FileReader();
+      const ext = (file.name.split(".").pop() || "").toLowerCase();
+      const isCSV = ext === "csv";
+
       reader.onload = async (e) => {
         try {
-          const data = new Uint8Array(e.target.result);
-          const wb = XLSX.read(data, { type: "array" });
+          let wb;
+          if (isCSV) {
+            const text = e.target.result;
+            wb = XLSX.read(text, { type: "string" });
+          } else {
+            const data = new Uint8Array(e.target.result);
+            wb = XLSX.read(data, { type: "array" });
+          }
+
           const sheetName = wb.SheetNames[0];
           const ws = wb.Sheets[sheetName];
           const rows = XLSX.utils.sheet_to_json(ws, { defval: null });
@@ -541,15 +550,20 @@ summarize_nice_records(py_recs)
           });
 
           document.getElementById("niceSummaryWrapPy").style.display = "block";
-          status.textContent = "집계 완료.";
+          status.textContent = isCSV ? "CSV 집계 완료." : "엑셀 집계 완료.";
         } catch (err) {
-          alert("엑셀 집계 중 오류가 발생했습니다. 아래 오류 박스를 확인해주세요.");
+          alert("집계 중 오류가 발생했습니다. 아래 오류 박스를 확인해주세요.");
           status.textContent = "오류 발생.";
           status.classList.add("danger");
           showPyError(err, "summarize_nice_records 실행 중");
         }
       };
-      reader.readAsArrayBuffer(file);
+
+      if (isCSV) {
+        reader.readAsText(file, "utf-8");
+      } else {
+        reader.readAsArrayBuffer(file);
+      }
     });
 
     document.getElementById("btnResetNice").addEventListener("click", () => {
@@ -559,7 +573,7 @@ summarize_nice_records(py_recs)
       const niceStatus = document.getElementById("niceStatus");
       niceStatus.textContent =
         pyReady
-          ? "엑셀 파일을 선택한 뒤 [엑셀 업로드·복무별 집계] 버튼을 누르세요."
+          ? "파일을 선택한 뒤 [업로드·복무별 집계] 버튼을 누르세요."
           : "Pyodide가 준비되면 업로드 가능해집니다.";
       niceStatus.classList.remove("danger");
       clearPyError();
@@ -609,10 +623,8 @@ full_pipeline("${ruleId}", svc_js, wage_js, ${granted}, ${used})
 
         const res = result.toJs({ deep: true });
 
-        // 규정 세트
         document.getElementById("resRuleName").textContent = res.rule.name || "-";
 
-        // 추천 연차일수
         const sug = res.suggestion || {};
         document.getElementById("resSuggestedDays").textContent =
           (sug.suggested_days === null || sug.suggested_days === undefined)
@@ -620,7 +632,6 @@ full_pipeline("${ruleId}", svc_js, wage_js, ${granted}, ${used})
             : `${sug.suggested_days} 일`;
         document.getElementById("resSuggestedDesc").textContent = sug.description || "-";
 
-        // 수당 계산
         const pay = res.payout || {};
         const grantedDays = pay.granted_days ?? 0;
         const usedDays = pay.used_days ?? 0;
